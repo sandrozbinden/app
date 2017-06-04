@@ -12,22 +12,20 @@ addons:
 language: node_js
 node_js:
   - "7"
-before_install:
-  - npm install -g cordova
 before_script:
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
 jobs:
   include:
-    - stage: Lint
+    - stage: Testing
       script: npm run lint
     - stage: Testing
-      script:
-      - npm run test-coverage
-      - npm run e2e    
+      script: npm run test-coverage
+    - stage: Testing  
+      script: npm run e2e 
     - stage: Deploy
-      script:
-      - chmod ugo+x scripts/run-ionic-cloud-builds-on-pr-or-master.sh
-      - ./scripts/run-ionic-cloud-builds-on-pr-or-master.sh
+      script: chmod ugo+x scripts/run-ionic-cloud-builds-on-pr-or-master.sh
+      script: ./scripts/run-ionic-cloud-builds-on-pr-or-master.sh
 after_script: 
-  - npm install coveralls@2 && cat ./coverage/lcov.info | coveralls
+  - npm install coveralls@2 && cat ./coverage/lcov.info | coveralls   
+ 
