@@ -20,15 +20,14 @@ before_script:
 jobs:
   include:
     - stage: Lint
+      script: npm run lint
     - stage: Testing
-    - stage: Coverage
+      script:
+      - npm run test-coverage
+      - npm run e2e    
     - stage: Deploy
-    
-script: 
-  - npm run lint
-  - npm run test-coverage
-  - npm run e2e
-  - chmod ugo+x scripts/run-ionic-cloud-builds-on-pr-or-master.sh
-  - ./scripts/run-ionic-cloud-builds-on-pr-or-master.sh
+      script:
+      - chmod ugo+x scripts/run-ionic-cloud-builds-on-pr-or-master.sh
+      - ./scripts/run-ionic-cloud-builds-on-pr-or-master.sh
 after_script: 
   - npm install coveralls@2 && cat ./coverage/lcov.info | coveralls
