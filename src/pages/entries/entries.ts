@@ -32,8 +32,11 @@ export class EntriesPage {
   fields: MetadataField[];
   titleField: string;
   parentImageReferenceField: string;
+  pictureFromCameraEnabled: boolean;
 
-  constructor(public navCtrl: NavController, public popoverCtrl: PopoverController, public entriesService: EntriesService, public authService: AuthService, public cameraService: CameraService, public loadingService: LoadingService, public events: Events, public settingService: SettingService, public modelService: ModelService, public platform: Platform,  public browserFileuploadSelectorService: BrowserFileuploadSelectorService) { }
+  constructor(public navCtrl: NavController, public popoverCtrl: PopoverController, public entriesService: EntriesService, public authService: AuthService, public cameraService: CameraService, public loadingService: LoadingService, public events: Events, public settingService: SettingService, public modelService: ModelService, public platform: Platform, public browserFileuploadSelectorService: BrowserFileuploadSelectorService) {
+    this.pictureFromCameraEnabled = settingService.isPictureFromCameraEnabled();
+  }
 
   public takePictureForEntry(parentImageEntryId: string, entryTitle: string) {
     this.loadingService.subscribeWithLoading(
