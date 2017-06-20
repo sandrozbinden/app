@@ -12,5 +12,6 @@ export class AuthServiceMock extends AuthService {
     super(http, imsService, settingService);
     this.currentCredential = imsBackendMock.credential;
     this.setArchive(imsBackendMock.policeFilter);
+  }
 
 }
