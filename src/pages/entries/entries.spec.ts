@@ -1,5 +1,4 @@
 import { AuthServiceMock } from './../../mocks/providers/auth-service-mock';
-import { Image } from './../../models/image';
 import { CameraError } from './../../models/errors/camera-error';
 import { ImsLoadingError } from './../../models/errors/ims-loading-error';
 import { Storage } from '@ionic/storage';
