@@ -62,9 +62,9 @@ describe('Provider: AuthService', () => {
 
   it('Should store the filter after archive selection', inject([AuthService, SettingService, ImsBackendMock], (authService: AuthService, settingService: SettingService, imsBackendMock: ImsBackendMock) => {
     spyOn(settingService, 'setFilter').and.callThrough();
-    let testInfo: Info = { version: '9000' };
-    authService.setCurrentCredential(testInfo, new Credential('https://test', 'testuser', 'testpass', 'testsegment'));
+    let credential = imsBackendMock.credential;
+    authService.setCurrentCredential(null, imsBackendMock.credential);
     authService.setArchive(imsBackendMock.policeFilter);
-    expect(settingService.setFilter).toHaveBeenCalledWith(authService.currentCredential.server, authService.currentCredential.username, imsBackendMock.policeFilter);
+    expect(settingService.setFilter).toHaveBeenCalledWith(credential.server, credential.username, imsBackendMock.policeFilter);
   }));
 });

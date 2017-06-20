@@ -1,5 +1,5 @@
+import { AuthServiceMock } from './../../mocks/providers/auth-service-mock';
 import { ImsLoadingError } from './../../models/errors/ims-loading-error';
-import { Credential } from './../../models/credential';
 import { LoginPage } from './../login/login';
 import { EntriesPoint } from './../../models/entries-point';
 import { Storage } from '@ionic/storage';
@@ -7,7 +7,6 @@ import { SettingService } from './../../providers/setting-service';
 import { EntriesPage } from './../entries/entries';
 import { ImsService } from './../../providers/ims-service';
 import { SettingArchivePage } from './setting-archive';
-import { Info } from './../../models/info';
 import { TestBed, inject, async, ComponentFixture } from '@angular/core/testing';
 import { App, Config, Form, IonicModule, Keyboard, DomController, LoadingController, NavController, Platform, NavParams, GestureController } from 'ionic-angular';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -32,7 +31,7 @@ describe('Page: Archive Settings', () => {
       declarations: [SettingArchivePage],
 
       providers: [
-        App, DomController, Form, Keyboard, NavController, LoadingController, AuthService, ImsService,
+        App, DomController, Form, Keyboard, NavController, LoadingController, ImsService,
         UploadService, ImsBackendMock, BaseRequestOptions, LoadingService, GestureController, SettingService,
         { provide: App, useClass: AppMock },
         { provide: Config, useClass: ConfigMock },
@@ -40,6 +39,7 @@ describe('Page: Archive Settings', () => {
         { provide: NavParams, useClass: NavParamsMock },
         { provide: LoadingController, useClass: LoadingMock },
         { provide: Storage, useClass: StorageMock },
+        { provide: AuthService, useClass: AuthServiceMock},
         {
           provide: Http,
           useFactory: (ImsBackendMock, options) => {
@@ -60,24 +60,20 @@ describe('Page: Archive Settings', () => {
     fixture.destroy();
   });
 
-  it('Should show app filters only', inject([AuthService, ImsBackendMock], (authService: AuthService, imsBackendMock: ImsBackendMock) => {
-    let testInfo: Info = { version: '9000' };
-    authService.setCurrentCredential(testInfo, imsBackendMock.credential);
+  it('Should show app filters only', inject([ImsBackendMock], (imsBackendMock: ImsBackendMock) => {
     page.ionViewDidLoad();
     expect(page.filters).toContain(imsBackendMock.medicineFilter);
     expect(page.filters).toContain(imsBackendMock.policeFilter);
     expect(page.filters).not.toContain(imsBackendMock.notAppFilter);
   }));
 
-  it('Should detect when no valid filters', inject([AuthService, ImsBackendMock, ImsService], (authService: AuthService, imsBackendMock: ImsBackendMock, imsSerivce: ImsService) => {
+  it('Should detect when no valid filters', inject([ImsService], (imsSerivce: ImsService) => {
     spyOn(imsSerivce, 'getEntriesTable').and.returnValue(Observable.of(new EntriesPoint([])));
     page.ionViewDidLoad();
     expect(page.noValidFilters).toBeTruthy();
   }));
 
-  it('Show and Hide Loading while loading', inject([LoadingService, AuthService, ImsBackendMock], (loadingService: LoadingService, authService: AuthService, imsBackendMock: ImsBackendMock) => {
-    let testInfo: Info = { version: '9000' };
-    authService.setCurrentCredential(testInfo, imsBackendMock.credential);
+  it('Show and Hide Loading while loading', inject([LoadingService], (loadingService: LoadingService) => {
     spyOn(loadingService, 'showLoading').and.callThrough();
     spyOn(loadingService, 'hideLoading').and.callThrough();
     page.ionViewDidLoad();
@@ -91,18 +87,14 @@ describe('Page: Archive Settings', () => {
     expect(() => page.ionViewDidLoad()).toThrowError(ImsLoadingError);
   }));
 
-  it('Should load EntriesPage after archive selection', inject([NavController, ImsBackendMock, AuthService], (nav: NavController, imsBackendMock: ImsBackendMock, authService: AuthService) => {
+  it('Should load EntriesPage after archive selection', inject([NavController, ImsBackendMock], (nav: NavController, imsBackendMock: ImsBackendMock) => {
     spyOn(nav, 'setRoot').and.callThrough();
-    let testInfo: Info = { version: '9000' };
-    authService.setCurrentCredential(testInfo, new Credential('https://test', 'testuser', 'testpass', 'testsegment'));
     page.selectFilter(imsBackendMock.policeFilter);
     expect(nav.setRoot).toHaveBeenCalledWith(EntriesPage);
   }));
 
   it('Should select the archive EntriesPage after archive selection', inject([AuthService, ImsBackendMock], (authService: AuthService, imsBackendMock: ImsBackendMock) => {
     spyOn(authService, 'setArchive').and.callThrough();
-    let testInfo: Info = { version: '9000' };
-    authService.setCurrentCredential(testInfo, new Credential('https://test', 'testuser', 'testpass', 'testsegment'));
     page.selectFilter(imsBackendMock.policeFilter);
     expect(authService.setArchive).toHaveBeenCalledWith(imsBackendMock.policeFilter);
   }));

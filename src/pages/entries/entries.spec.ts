@@ -1,3 +1,5 @@
+import { AuthServiceMock } from './../../mocks/providers/auth-service-mock';
+import { Image } from './../../models/image';
 import { CameraError } from './../../models/errors/camera-error';
 import { ImsLoadingError } from './../../models/errors/ims-loading-error';
 import { Storage } from '@ionic/storage';
@@ -20,7 +22,6 @@ import { EntriesService } from '../../providers/entries-service';
 import { CameraService } from '../../providers/camera-service';
 import { LoadingService } from '../../providers/loading-service';
 import { AlertService } from '../../providers/alert-service';
-import { Info } from '../../models/info';
 import { Observable } from 'rxjs/Observable';
 import { UploadPage } from '../upload/upload';
 import 'rxjs/add/observable/throw';
@@ -40,7 +41,7 @@ describe('Page: Entries', () => {
 
       providers: [
         App, DomController, Form, Keyboard, NavController, EntriesService, LoadingController,
-        AuthService, ImsService, TokenService, ImsBackendMock, BaseRequestOptions, Camera, GestureController,
+        ImsService, TokenService, ImsBackendMock, BaseRequestOptions, Camera, GestureController,
         ModelService, SettingService,
         CameraService, LoadingService, AlertService, QueryBuilderService, Events,
         { provide: App, useClass: AppMock },
@@ -51,7 +52,7 @@ describe('Page: Entries', () => {
         { provide: LoadingController, useClass: LoadingMock },
         { provide: PopoverController, useClass: PopoverControllerMock },
         { provide: Storage, useClass: StorageMock },
-
+        { provide: AuthService, useClass: AuthServiceMock },
         {
           provide: Http,
           useFactory: (imsBackendMock, options) => {
@@ -78,73 +79,55 @@ describe('Page: Entries', () => {
     expect(popoverController.create).toHaveBeenCalled();
   }));
 
-  it('Load entries when ion view did load', inject([EntriesService, ImsBackendMock, AuthService], (entriesService: EntriesService, imsBackendMock: ImsBackendMock, authService: AuthService) => {
-    let testInfo: Info = { version: '9000' };
-    authService.setCurrentCredential(testInfo, imsBackendMock.credential);
-    authService.setArchive(imsBackendMock.policeFilter);
+  it('Load entries when ion view did load', inject([EntriesService, ImsBackendMock], (entriesService: EntriesService, imsBackendMock: ImsBackendMock) => {
     page.sort = imsBackendMock.query;
     page.ionViewDidLoad();
     expect(page.entries).toEqual(imsBackendMock.parentImageEntries.entries);
     expect(page.nextPage).toEqual(imsBackendMock.parentImageEntriesNextPageUrl);
   }));
 
-  it('Set parent image reference field', inject([ImsBackendMock, AuthService, LoadingService], (imsBackendMock: ImsBackendMock, authService: AuthService, loadingService: LoadingService) => {
+  it('Set parent image reference field', inject([ImsBackendMock, LoadingService], (imsBackendMock: ImsBackendMock, loadingService: LoadingService) => {
     spyOn(loadingService, 'subscribeWithLoading').and.callThrough();
-    let testInfo: Info = { version: '9000' };
-    authService.setCurrentCredential(testInfo, imsBackendMock.credential);
-    authService.setArchive(imsBackendMock.policeFilter);
     page.loadParentImageReferenceField();
     expect(page.parentImageReferenceField).toEqual(imsBackendMock.modelFieldParentreferenceName);
     expect(loadingService.subscribeWithLoading).toHaveBeenCalled();
   }));
 
-  it('Throw error when failing load parent image reference field', inject([ImsBackendMock, AuthService, LoadingService, ModelService], (imsBackendMock: ImsBackendMock, authService: AuthService, loadingService: LoadingService, modelService: ModelService) => {
+  it('Throw error when failing load parent image reference field', inject([ImsBackendMock, LoadingService, ModelService], (imsBackendMock: ImsBackendMock, loadingService: LoadingService, modelService: ModelService) => {
     spyOn(loadingService, 'subscribeWithLoading').and.callThrough();
     spyOn(modelService, 'getMetadataFieldsOfImageTable').and.returnValue(Observable.throw('oops'));
     expect(() => page.loadParentImageReferenceField()).toThrowError(ImsLoadingError);
     expect(loadingService.subscribeWithLoading).toHaveBeenCalled();
   }));
 
-  it('Show and hide loading when successful when loading initial entries', inject([ImsBackendMock, AuthService, LoadingService], (imsBackendMock: ImsBackendMock, authService: AuthService, loadingService: LoadingService) => {
+  it('Show and hide loading when successful when loading initial entries', inject([ImsBackendMock, LoadingService], (imsBackendMock: ImsBackendMock, loadingService: LoadingService) => {
     spyOn(loadingService, 'subscribeWithLoading').and.callThrough();
-    let testInfo: Info = { version: '9000' };
-    authService.setCurrentCredential(testInfo, imsBackendMock.credential);
-    authService.setArchive(imsBackendMock.policeFilter);
     page.sort = imsBackendMock.query;
     page.loadInitialParentImageEntries();
     expect(loadingService.subscribeWithLoading).toHaveBeenCalled();
   }));
 
-  it('Show and hide loading indicator and throw error when failing to loading initial entries', inject([ImsBackendMock, AuthService, LoadingService, EntriesService], (imsBackendMock: ImsBackendMock, authService: AuthService, loadingService: LoadingService, entriesService: EntriesService) => {
+  it('Show and hide loading indicator and throw error when failing to loading initial entries', inject([ImsBackendMock, LoadingService, EntriesService], (imsBackendMock: ImsBackendMock, loadingService: LoadingService, entriesService: EntriesService) => {
     spyOn(loadingService, 'subscribeWithLoading').and.callThrough();
     spyOn(entriesService, 'getParentImageEntries').and.returnValue(Observable.throw('oops'));
     expect(() => page.loadInitialParentImageEntries()).toThrowError(ImsLoadingError);
     expect(loadingService.subscribeWithLoading).toHaveBeenCalled();
   }));
 
-  it('Sets title field to identifier field', inject([ImsBackendMock, AuthService], (imsBackendMock: ImsBackendMock, authService: AuthService) => {
-    let testInfo: Info = { version: '9000' };
-    authService.setCurrentCredential(testInfo, imsBackendMock.credential);
-    authService.setArchive(imsBackendMock.policeFilter);
+  it('Sets title field to identifier field', inject([ImsBackendMock], (imsBackendMock: ImsBackendMock) => {
     page.loadSelectedFieldsAndTitle();
     expect(page.titleField).toEqual(imsBackendMock.parentImageModelFieldIdentifierName);
   }));
 
-  it('Has fields when set in setting service', inject([ImsBackendMock, AuthService, SettingService], (imsBackendMock: ImsBackendMock, authService: AuthService, settingService: SettingService) => {
+  it('Has fields when set in setting service', inject([ImsBackendMock, SettingService], (imsBackendMock: ImsBackendMock, settingService: SettingService) => {
     spyOn(settingService, 'getFieldState').and.returnValue(Observable.of(true));
-    let testInfo: Info = { version: '9000' };
-    authService.setCurrentCredential(testInfo, imsBackendMock.credential);
-    authService.setArchive(imsBackendMock.policeFilter);
     page.loadSelectedFieldsAndTitle();
     expect(page.fields).toContain(imsBackendMock.parentImageModelFieldOptionalString);
     expect(page.fields).toContain(imsBackendMock.parentImageModelFieldParentreference);
   }));
 
-  it('Does not have any fields when nothing is set', inject([ImsBackendMock, AuthService, SettingService], (imsBackendMock: ImsBackendMock, authService: AuthService, settingService: SettingService) => {
+  it('Does not have any fields when nothing is set', inject([ImsBackendMock, SettingService], (imsBackendMock: ImsBackendMock, settingService: SettingService) => {
     spyOn(settingService, 'getFieldState').and.returnValue(Observable.of(false));
-    let testInfo: Info = { version: '9000' };
-    authService.setCurrentCredential(testInfo, imsBackendMock.credential);
-    authService.setArchive(imsBackendMock.policeFilter);
     page.loadSelectedFieldsAndTitle();
     expect(page.fields.length).toBe(0);
   }));
