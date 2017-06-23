@@ -13,7 +13,8 @@
     "test-coverage": "karma start ./test-config/karma.conf.js --coverage",
     "e2e": "npm run clean && npm run build && node node_modules/protractor/bin/webdriver-manager update && node node_modules/protractor/bin/protractor",
     "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
-    "release": "standard-version"
+    "release": "standard-version",
+    "version-update": "node scripts/version-update.js"
   },
   "config": {
     "ionic_source_map": "source-map",
@@ -93,7 +94,7 @@
     "tslint-ionic-rules": "0.0.8",
     "typescript": "2.3.4"
   },
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Cross-Platform Ionic App for IMS",
   "repository": {
     "type": "git",
