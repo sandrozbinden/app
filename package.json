@@ -99,9 +99,10 @@
     "ts-node": "^3.0.4",
     "tslint": "5.4.3",
     "tslint-ionic-rules": "0.0.8",
-    "typescript": "2.3.4"
+    "typescript": "2.3.4",
+    "semantic-release": "^6.3.6"
   },
-  "version": "0.7.10",
+  "version": "0.0.0-development",
   "description": "Cross-Platform Ionic App for IMS",
   "repository": {
     "type": "git",

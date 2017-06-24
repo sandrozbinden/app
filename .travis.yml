@@ -1,22 +1,25 @@
 sudo: required
 dist: trusty
+language: node_js
 cache:
   directories:
-    - "node_modules"
+    - node_modules
 addons:
   apt:
     sources:
       - google-chrome
     packages:
       - google-chrome-stable
-language: node_js
+notifications:
+  email: false
 node_js:
-  - "7"
-before_install:
-  - npm install -g semantic-release
+  - '7'
 before_script:
+  - npm prune
   - export DISPLAY=:99.0
   - sh -e /etc/init.d/xvfb start
-script: 
-after_script: 
-  - npm run semantic-release 
+after_success:
+  - npm run semantic-release
+branches:
+  except:
+    - /^v\d+\.\d+\.\d+$/
